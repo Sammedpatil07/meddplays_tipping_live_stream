@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { io } from 'socket.io-client'
-import { SOCKET_URL } from '../config.js'
+import { API_URL } from '../config.js'
+
+const POLL_INTERVAL = 4000 // Check every 4 seconds
 
 const amountEmoji = (amount) => {
   if (amount >= 500) return '🚀'
@@ -23,8 +24,9 @@ const amountTier = (amount) => {
 export default function StreamOverlay() {
   const [queue, setQueue] = useState([])
   const [activeTip, setActiveTip] = useState(null)
-  const socketRef = useRef(null)
   const processingRef = useRef(false)
+  const lastTipIdRef = useRef(null)
+  const lastTipTimeRef = useRef(null)
 
   // Make body fully transparent for OBS browser source
   useEffect(() => {
@@ -46,7 +48,6 @@ export default function StreamOverlay() {
     const next = queue[0]
     setQueue((prev) => prev.slice(1))
     setActiveTip(next)
-
     playSound(next.amount)
   }, [queue, activeTip])
 
@@ -55,22 +56,46 @@ export default function StreamOverlay() {
     processingRef.current = false
   }
 
+  // Poll backend for new tips every POLL_INTERVAL ms
   useEffect(() => {
-    const streamerId = 'meddplays'
-    const socket = io(SOCKET_URL, { transports: ['websocket', 'polling'] })
-    socketRef.current = socket
+    const BACKEND = 'https://meddplays-backend.onrender.com'
 
-    socket.on('connect', () => {
-      socket.emit('join-dashboard', streamerId)
-      console.log('🎮 Overlay connected')
-    })
+    const fetchLatestTip = async () => {
+      try {
+        const res = await fetch(`${BACKEND}/api/tips?status=paid&limit=1`)
+        const data = await res.json()
+        const tips = data.tips || []
 
-    socket.on('new-tip', (tipData) => {
-      console.log('💜 Overlay received tip:', tipData)
-      setQueue((prev) => [...prev, { ...tipData, _key: Date.now() + Math.random() }])
-    })
+        if (tips.length === 0) return
 
-    return () => socket.disconnect()
+        const latest = tips[0]
+        const latestId = latest._id || latest.id
+        const latestTime = new Date(latest.createdAt).getTime()
+
+        // On first load, just record the latest tip — don't show it
+        if (lastTipIdRef.current === null) {
+          lastTipIdRef.current = latestId
+          lastTipTimeRef.current = latestTime
+          return
+        }
+
+        // If the most recent tip is newer than what we last saw → show alert
+        if (latestId !== lastTipIdRef.current && latestTime > (lastTipTimeRef.current || 0)) {
+          lastTipIdRef.current = latestId
+          lastTipTimeRef.current = latestTime
+          setQueue((prev) => [...prev, { ...latest, _key: Date.now() }])
+        }
+      } catch (err) {
+        console.log('Polling error:', err)
+      }
+    }
+
+    // Fetch immediately on mount to set baseline
+    fetchLatestTip()
+
+    // Then poll every POLL_INTERVAL
+    const interval = setInterval(fetchLatestTip, POLL_INTERVAL)
+    return () => clearInterval(interval)
   }, [])
 
   const playSound = (amount) => {
@@ -165,7 +190,7 @@ function TipAlertOverlay({ tip, onDone }) {
         pointerEvents: 'none',
       }}
     >
-      {/* Animated background shimmer */}
+      {/* Shimmer background */}
       <motion.div
         style={{
           position: 'absolute', inset: 0,
@@ -237,7 +262,6 @@ function TipAlertOverlay({ tip, onDone }) {
             fontWeight: 900,
             color: '#ffffff',
             lineHeight: 1.1,
-            letterSpacing: '-0.02em',
             display: 'flex',
             alignItems: 'center',
             gap: '12px',
