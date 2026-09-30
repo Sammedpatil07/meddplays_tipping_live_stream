@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Heart, Zap, MessageCircle, IndianRupee, Gamepad2, Youtube } from 'lucide-react'
+import { Heart, Zap, MessageCircle, IndianRupee, Gamepad2, Youtube, QrCode, Copy } from 'lucide-react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { API_URL } from '../config.js'
@@ -282,6 +282,62 @@ export default function TipPage() {
                 Secured by Razorpay · UPI · Cards · Net Banking
               </p>
             </div>
+
+            {/* QR Code Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              style={{
+                background: 'rgba(139,92,246,0.06)',
+                border: '1px solid rgba(139,92,246,0.2)',
+                borderRadius: '16px',
+                padding: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '12px',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <QrCode size={16} color="var(--purple-400)" />
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Scan to Tip</span>
+              </div>
+
+              {/* QR Image from free API */}
+              <div style={{
+                background: '#ffffff',
+                borderRadius: '12px',
+                padding: '10px',
+                boxShadow: '0 0 20px rgba(139,92,246,0.2)',
+              }}>
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(window.location.origin + '/')}&color=1a0533&bgcolor=ffffff&qzone=1`}
+                  alt="Tip page QR code"
+                  width={140}
+                  height={140}
+                  style={{ display: 'block', borderRadius: '6px' }}
+                />
+              </div>
+
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.5 }}>
+                Point your phone camera at this QR<br/>to open the tip page instantly 📱
+              </p>
+
+              <motion.button
+                id="copy-tip-url-btn"
+                className="btn btn-outline"
+                style={{ fontSize: '0.8rem', padding: '8px 16px', width: '100%' }}
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.origin + '/')
+                  toast.success('Tip link copied! 🎮')
+                }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Copy size={14} /> Copy Tip Link
+              </motion.button>
+            </motion.div>
           </div>
         </motion.div>
 
