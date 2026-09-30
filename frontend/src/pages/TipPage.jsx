@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Heart, Zap, MessageCircle, IndianRupee, Gamepad2, Youtube } from 'lucide-react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import { API_URL } from '../config.js'
 
 const PRESET_AMOUNTS = [10, 20, 50, 100, 200, 500]
 const STREAMER_NAME = 'MEDDplays'
@@ -44,7 +45,7 @@ export default function TipPage() {
     if (!validateForm()) return
     setIsLoading(true)
     try {
-      const { data } = await axios.post('/api/tips/create-order', {
+      const { data } = await axios.post(`${API_URL}/api/tips/create-order`, {
         amount: Number(form.amount),
         senderName: form.name.trim(),
         message: form.message.trim(),
@@ -64,7 +65,7 @@ export default function TipPage() {
         order_id: data.orderId,
         handler: async (response) => {
           try {
-            const verifyRes = await axios.post('/api/tips/verify-payment', {
+            const verifyRes = await axios.post(`${API_URL}/api/tips/verify-payment`, {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,

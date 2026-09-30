@@ -9,6 +9,7 @@ import {
   LogOut, ExternalLink, Wifi, WifiOff, RefreshCw
 } from 'lucide-react'
 import TipAlert from '../components/TipAlert.jsx'
+import { SOCKET_URL, API_URL } from '../config.js'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -38,8 +39,8 @@ export default function Dashboard() {
     setIsLoading(true)
     try {
       const [tipsRes, statsRes] = await Promise.all([
-        axios.get('/api/tips?status=paid&limit=50'),
-        axios.get('/api/tips/stats'),
+        axios.get(`${API_URL}/api/tips?status=paid&limit=50`),
+        axios.get(`${API_URL}/api/tips/stats`),
       ])
       setTips(tipsRes.data.tips || [])
       setStats(statsRes.data.stats)
@@ -60,7 +61,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (!streamer) return
 
-    const socket = io('/', { transports: ['websocket', 'polling'] })
+    const socket = io(SOCKET_URL, { transports: ['websocket', 'polling'] })
     socketRef.current = socket
 
     socket.on('connect', () => {
