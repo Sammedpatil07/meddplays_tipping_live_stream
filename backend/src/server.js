@@ -83,7 +83,16 @@ html,body{background:transparent!important;width:1920px;height:1080px;overflow:h
   <div id="bar"></div>
 </div>
 <script>
-var POLL=4000,DUR=7000,lid=null,lt=0,busy=false,q=[];
+var POLL=4000,lid=null,lt=0,busy=false,q=[];
+// Duration scales with tip amount (ms)
+function getDur(a){
+  if(a>=500) return 15000;  // Legendary: 15s
+  if(a>=200) return 12000;  // Epic:      12s
+  if(a>=100) return 10000;  // Rare:      10s
+  if(a>=50)  return 7000;   // Uncommon:   7s
+  if(a>=20)  return 5000;   // Common:     5s
+  return 4000;              // Small tip:  4s
+}
 var T={
   legendary:{glow:'#f59e0b',border:'#fbbf24',bg:'rgba(251,191,36,0.12)',badge:'#f59e0b',em:'\\uD83D\\uDE80'},
   epic:     {glow:'#a855f7',border:'#c084fc',bg:'rgba(168,85,247,0.12)',badge:'#a855f7',em:'\\uD83D\\uDC51'},
@@ -119,9 +128,12 @@ function show(tip){
   var pts=document.getElementById('pts');pts.innerHTML='';
   var cnt=tr==='legendary'?8:tr==='epic'?5:tr==='common'?0:3;
   for(var i=0;i<cnt;i++){var p=document.createElement('div');p.className='dot';p.style.background=t.glow;p.style.top=(10+i*10)+'%';p.style.left=(10+i*9)+'%';p.style.animationDelay=(i*.2)+'s';pts.appendChild(p);}
-  var bar=document.getElementById('bar');bar.style.background='linear-gradient(90deg,'+t.glow+','+t.border+')';bar.className='';void bar.offsetWidth;bar.className='go';
+  var dur=getDur(tip.amount);
+  var bar=document.getElementById('bar');bar.style.background='linear-gradient(90deg,'+t.glow+','+t.border+')';
+  bar.style.animationDuration=''; bar.className='';void bar.offsetWidth;
+  bar.style.animationDuration=(dur/1000)+'s';bar.className='go';
   box.className='show';snd(tip.amount);
-  setTimeout(function(){box.className='hide';setTimeout(function(){box.className='';busy=false;if(q.length)show(q.shift());},400);},DUR);
+  setTimeout(function(){box.className='hide';setTimeout(function(){box.className='';busy=false;if(q.length)show(q.shift());},400);},dur);
 }
 function poll(){
   fetch('/api/tips?status=paid&limit=1',{cache:'no-store'})
