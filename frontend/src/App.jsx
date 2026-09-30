@@ -4,6 +4,7 @@ import TipPage from './pages/TipPage.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import ThankYouPage from './pages/ThankYouPage.jsx'
+import StreamOverlay from './pages/StreamOverlay.jsx'
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/thankyou" element={<ThankYouPage />} />
+        <Route path="/overlay" element={<StreamOverlay />} />
       </Routes>
     </BrowserRouter>
   )

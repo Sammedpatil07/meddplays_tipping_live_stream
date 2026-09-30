@@ -1,20 +1,25 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+const BACKEND = 'https://meddplays-backend.onrender.com'
+
 export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: BACKEND,
         changeOrigin: true,
+        secure: true,
       },
       '/socket.io': {
-        target: 'http://localhost:5000',
+        target: BACKEND,
         changeOrigin: true,
         ws: true,
+        secure: true,
       },
     },
   },
 })
+
