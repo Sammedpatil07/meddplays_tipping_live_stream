@@ -13,18 +13,19 @@ const app = express();
 const httpServer = createServer(app);
 
 const allowedOrigins = [
-  process.env.CLIENT_URL || 'http://localhost:5173',
+  'https://meddplays-tipping-live-stream.vercel.app',
   'http://localhost:5173',
-  /\.vercel\.app$/,
-];
+  process.env.CLIENT_URL,
+].filter(Boolean);
 
 const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin) return callback(null, true); // allow non-browser requests
-    const allowed = allowedOrigins.some((o) =>
-      typeof o === 'string' ? o === origin : o.test(origin)
-    );
-    allowed ? callback(null, true) : callback(new Error('Not allowed by CORS'));
+    // Allow requests with no origin (mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
 };
@@ -33,10 +34,10 @@ const io = new Server(httpServer, {
   cors: {
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
-      const allowed = allowedOrigins.some((o) =>
-        typeof o === 'string' ? o === origin : o.test(origin)
-      );
-      allowed ? callback(null, true) : callback(new Error('Not allowed by CORS'));
+      if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS'));
     },
     methods: ['GET', 'POST'],
   },
