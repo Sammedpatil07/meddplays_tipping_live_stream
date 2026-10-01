@@ -278,65 +278,89 @@ export default function TipPage() {
             {/* Secure badge */}
             <div className="text-center" style={{ textAlign: 'center' }}>
               <p className="text-xs text-muted" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                <span>🔒</span>
-                Secured by Razorpay · UPI · Cards · Net Banking
+                <span>⚙️</span>
+                Razorpay integration is being built — use QR below to tip!
               </p>
             </div>
 
-            {/* QR Code Card */}
+            {/* Google Pay QR Code Card */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
               style={{
-                background: 'rgba(139,92,246,0.06)',
-                border: '1px solid rgba(139,92,246,0.2)',
-                borderRadius: '16px',
-                padding: '20px',
+                background: 'linear-gradient(135deg, rgba(139,92,246,0.08), rgba(59,130,246,0.06))',
+                border: '1px solid rgba(139,92,246,0.25)',
+                borderRadius: '20px',
+                padding: '24px 20px',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: '12px',
+                gap: '14px',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <QrCode size={16} color="var(--purple-400)" />
-                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Scan to Tip</span>
+              {/* Header */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <QrCode size={16} color="var(--purple-400)" />
+                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-secondary)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Tip via QR Code</span>
+                </div>
               </div>
 
-              {/* QR Image from free API */}
+              {/* Instruction Banner */}
+              <div style={{
+                background: 'rgba(251,191,36,0.1)',
+                border: '1px solid rgba(251,191,36,0.35)',
+                borderRadius: '10px',
+                padding: '10px 14px',
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '8px',
+                width: '100%',
+                boxSizing: 'border-box',
+              }}>
+                <span style={{ fontSize: '1rem', flexShrink: 0 }}>⚠️</span>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: '#fbbf24', lineHeight: 1.55, fontWeight: 500 }}>
+                  <strong style={{ display: 'block', marginBottom: '2px' }}>Use QR code to tip for now</strong>
+                  Razorpay payment gateway is currently being built. Scan the Google Pay QR below to send your tip directly! 🙏
+                </p>
+              </div>
+
+              {/* GPay QR Image */}
               <div style={{
                 background: '#ffffff',
-                borderRadius: '12px',
-                padding: '10px',
-                boxShadow: '0 0 20px rgba(139,92,246,0.2)',
+                borderRadius: '16px',
+                padding: '12px',
+                boxShadow: '0 0 30px rgba(139,92,246,0.25), 0 4px 20px rgba(0,0,0,0.3)',
               }}>
                 <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(window.location.origin + '/')}&color=1a0533&bgcolor=ffffff&qzone=1`}
-                  alt="Tip page QR code"
-                  width={140}
-                  height={140}
-                  style={{ display: 'block', borderRadius: '6px' }}
+                  src="/gpay-qr.png"
+                  alt="Google Pay QR code — UPI ID: sammedp63@okicici"
+                  width={180}
+                  height={180}
+                  style={{ display: 'block', borderRadius: '8px' }}
                 />
               </div>
 
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.5 }}>
-                Point your phone camera at this QR<br/>to open the tip page instantly 📱
-              </p>
-
-              <motion.button
-                id="copy-tip-url-btn"
-                className="btn btn-outline"
-                style={{ fontSize: '0.8rem', padding: '8px 16px', width: '100%' }}
-                onClick={() => {
-                  navigator.clipboard.writeText(window.location.origin + '/')
-                  toast.success('Tip link copied! 🎮')
-                }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Copy size={14} /> Copy Tip Link
-              </motion.button>
+              {/* UPI ID */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.5 }}>
+                  📱 Scan with <strong style={{ color: 'var(--text-secondary)' }}>Google Pay, PhonePe, Paytm</strong> or any UPI app
+                </p>
+                <motion.button
+                  id="copy-upi-id-btn"
+                  className="btn btn-outline"
+                  style={{ fontSize: '0.78rem', padding: '8px 16px', width: '100%', marginTop: '2px' }}
+                  onClick={() => {
+                    navigator.clipboard.writeText('sammedp63@okicici')
+                    toast.success('UPI ID copied! 📋')
+                  }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Copy size={13} /> Copy UPI ID: sammedp63@okicici
+                </motion.button>
+              </div>
             </motion.div>
           </div>
         </motion.div>
