@@ -1,12 +1,21 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Heart, Zap, MessageCircle, IndianRupee, Gamepad2, Youtube, QrCode, Copy } from 'lucide-react'
+import { Heart, Zap, MessageCircle, IndianRupee, Gamepad2, Youtube, Copy, QrCode, Minus, Plus, User, Check } from 'lucide-react'
+import { QRCodeSVG } from 'qrcode.react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { API_URL } from '../config.js'
+import { BackgroundGradient } from '../components/BackgroundGradient.jsx'
 
-const PRESET_AMOUNTS = [10, 20, 50, 100, 200, 500]
+const PRESET_AMOUNTS = [
+  { value: 40, label: '₹40' },
+  { value: 100, label: '₹100' },
+  { value: 500, label: '₹500' },
+  { value: 1000, label: '₹1k' },
+  { value: 2000, label: '₹2k' },
+  { value: 10000, label: '₹10k' },
+]
 const STREAMER_NAME = 'MEDDplays'
 
 const emojiReactions = {
@@ -20,19 +29,27 @@ const emojiReactions = {
 
 export default function TipPage() {
   const navigate = useNavigate()
-  const [form, setForm] = useState({ name: '', amount: '', message: '' })
-  const [selectedPreset, setSelectedPreset] = useState(null)
+  const [form, setForm] = useState({ name: '', amount: '40', message: '' })
+  const [selectedPreset, setSelectedPreset] = useState(40)
   const [isLoading, setIsLoading] = useState(false)
   const [step, setStep] = useState(1) // 1 = form, 2 = confirm
 
   const handlePreset = (amt) => {
     setSelectedPreset(amt)
-    setForm((prev) => ({ ...prev, amount: amt }))
+    setForm((prev) => ({ ...prev, amount: String(amt) }))
   }
 
   const handleCustomAmount = (val) => {
-    setSelectedPreset(null)
+    const num = Number(val)
+    setSelectedPreset(PRESET_AMOUNTS.some(p => p.value === num) ? num : null)
     setForm((prev) => ({ ...prev, amount: val }))
+  }
+
+  const handleStepAmount = (delta) => {
+    const current = Number(form.amount) || 0
+    const stepSize = current < 100 ? 10 : current < 1000 ? 50 : 500
+    const nextVal = Math.max(1, current + delta * stepSize)
+    handleCustomAmount(String(nextVal))
   }
 
   const validateForm = () => {
@@ -112,35 +129,62 @@ export default function TipPage() {
       <div className="orb orb-2" />
       <div className="orb orb-3" />
 
-      <div className="page-wrapper">
+      <div className="page-wrapper" style={{ paddingTop: '32px', paddingBottom: '32px' }}>
         <motion.div
-          className="tip-form-card card"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
+          style={{ width: '100%', maxWidth: '480px' }}
         >
-          {/* Streamer Header */}
+          <BackgroundGradient borderRadius="28px" containerStyle={{ width: '100%' }}>
+          <div className="tip-form-card card">
+          {/* Streamer Header (Screenshot Pill Design - Clickable YouTube Profile) */}
           <div className="streamer-header">
-            <motion.div
-              className="streamer-avatar"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: 'spring', stiffness: 300 }}
+            <motion.a
+              href="https://www.youtube.com/@MEDDplayss"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="streamer-pill-badge"
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 350 }}
+              title="Visit MEDDplays YouTube channel"
             >
-              🎮
-            </motion.div>
+              {/* Avatar + YouTube micro badge */}
+              <div className="streamer-pill-avatar-wrap">
+                <img
+                  src="/avatar.png"
+                  alt={STREAMER_NAME}
+                  className="streamer-pill-avatar-img"
+                />
+                <div className="streamer-pill-yt-icon">
+                  <svg
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    style={{ display: 'block' }}
+                  >
+                    <path
+                      d="M9.5 7.5L16.5 12L9.5 16.5V7.5Z"
+                      fill="#ffffff"
+                    />
+                  </svg>
+                </div>
+              </div>
 
-            <div className="flex items-center justify-center gap-2 mb-2" style={{ gap: '8px' }}>
-              <Youtube size={16} color="#ef4444" />
-              <span className="text-sm" style={{ color: '#f87171', fontWeight: 600 }}>LIVE STREAM</span>
-            </div>
-
-            <h1 className="heading-lg gradient-text mb-4" style={{ marginBottom: '8px' }}>
-              {STREAMER_NAME}
-            </h1>
-            <p className="text-sm text-secondary" style={{ color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-              Support the stream! Every tip shows up live 🎯<br />
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>No monetization, just love ❤️</span>
-            </p>
+              {/* Streamer info */}
+              <div className="streamer-pill-info">
+                <div className="streamer-pill-name-row">
+                  <span className="streamer-pill-name">{STREAMER_NAME}</span>
+                  <div className="streamer-pill-verified" title="Verified Streamer">
+                    <Check size={9} strokeWidth={3.5} />
+                  </div>
+                </div>
+                <span className="streamer-pill-handle">@MEDDplayss</span>
+              </div>
+            </motion.a>
           </div>
 
           {/* Form */}
@@ -158,48 +202,88 @@ export default function TipPage() {
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   maxLength={50}
-                  style={{ paddingLeft: '44px' }}
+                  style={{ paddingLeft: '46px' }}
                 />
-                <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }}>
-                  👤
+                <span style={{
+                  position: 'absolute',
+                  left: '16px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  color: '#64748b',
+                  pointerEvents: 'none',
+                }}>
+                  <User size={18} />
                 </span>
               </div>
             </div>
 
-            {/* Amount Presets */}
-            <div className="form-group">
+            {/* Amount Presets & Stepper (Screenshot Design) */}
+            <div className="form-group" style={{ gap: '14px' }}>
               <label className="form-label">Choose Amount (₹)</label>
-              <div className="amount-grid">
-                {PRESET_AMOUNTS.map((amt) => (
-                  <motion.button
-                    key={amt}
-                    className={`amount-chip ${selectedPreset === amt ? 'active' : ''}`}
-                    onClick={() => handlePreset(amt)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    id={`amount-${amt}`}
-                  >
-                    {emojiReactions[amt]} ₹{amt}
-                  </motion.button>
-                ))}
+
+              {/* Central Pill Stepper */}
+              <div className="stepper-container">
+                <motion.button
+                  type="button"
+                  className="stepper-btn"
+                  onClick={() => handleStepAmount(-1)}
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.92 }}
+                  aria-label="Decrease amount"
+                >
+                  <Minus size={20} />
+                </motion.button>
+
+                <div className="stepper-pill">
+                  <div className="stepper-pill-input-row">
+                    <span className="stepper-currency-symbol">₹</span>
+                    <div className="stepper-number-wrapper">
+                      <input
+                        id="custom-amount"
+                        type="number"
+                        className="stepper-number-input"
+                        value={form.amount}
+                        onChange={(e) => handleCustomAmount(e.target.value)}
+                        min={1}
+                        style={{
+                          width: `${Math.max(2, String(form.amount || '40').length) * 26 + 10}px`,
+                        }}
+                      />
+                      <div className="stepper-glow-indicator" />
+                    </div>
+                    <span className="stepper-currency-code">INR</span>
+                  </div>
+                </div>
+
+                <motion.button
+                  type="button"
+                  className="stepper-btn"
+                  onClick={() => handleStepAmount(1)}
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.92 }}
+                  aria-label="Increase amount"
+                >
+                  <Plus size={20} />
+                </motion.button>
               </div>
 
-              {/* Custom Amount */}
-              <div style={{ position: 'relative', marginTop: '10px' }}>
-                <span style={{
-                  position: 'absolute', left: '14px', top: '50%',
-                  transform: 'translateY(-50%)', color: 'var(--text-secondary)', fontWeight: 700
-                }}>₹</span>
-                <input
-                  id="custom-amount"
-                  type="number"
-                  className="form-input"
-                  placeholder="Custom amount..."
-                  value={selectedPreset ? '' : form.amount}
-                  onChange={(e) => handleCustomAmount(e.target.value)}
-                  min={1}
-                  style={{ paddingLeft: '36px' }}
-                />
+              {/* Horizontal Row of Circular Pills */}
+              <div className="pill-presets-row">
+                {PRESET_AMOUNTS.map((preset) => (
+                  <motion.button
+                    key={preset.value}
+                    type="button"
+                    className={`preset-circle-pill ${selectedPreset === preset.value ? 'active' : ''}`}
+                    onClick={() => handlePreset(preset.value)}
+                    whileHover={{ scale: 1.08 }}
+                    whileTap={{ scale: 0.92 }}
+                    id={`amount-${preset.value}`}
+                  >
+                    {preset.label}
+                  </motion.button>
+                ))}
               </div>
             </div>
 
@@ -232,19 +316,20 @@ export default function TipPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   style={{
-                    background: 'rgba(139, 92, 246, 0.1)',
-                    border: '1px solid rgba(139, 92, 246, 0.3)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '14px 18px',
+                    background: 'radial-gradient(120% 120% at 50% 20%, rgba(30, 58, 110, 0.45) 0%, rgba(15, 23, 42, 0.75) 100%)',
+                    border: '1px solid rgba(59, 130, 246, 0.25)',
+                    borderRadius: '16px',
+                    padding: '16px 20px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
+                    boxShadow: 'inset 0 1px 4px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25)',
                   }}
                 >
-                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                    {currentEmoji} You're tipping
+                  <span style={{ color: '#cbd5e1', fontSize: '0.92rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span>{currentEmoji}</span> You're tipping
                   </span>
-                  <span style={{ fontSize: '1.4rem', fontWeight: 900 }} className="gradient-text">
+                  <span style={{ fontSize: '1.5rem', fontWeight: 900, color: '#60a5fa', letterSpacing: '-0.02em', textShadow: '0 0 16px rgba(96, 165, 250, 0.4)' }}>
                     ₹{Number(form.amount).toLocaleString('en-IN')}
                   </span>
                 </motion.div>
@@ -255,7 +340,13 @@ export default function TipPage() {
             <motion.button
               id="pay-tip-btn"
               className="btn btn-primary btn-full"
-              style={{ fontSize: '1.1rem', padding: '16px', marginTop: '4px' }}
+              style={{
+                fontSize: '1.05rem',
+                padding: '16px 28px',
+                letterSpacing: '0.01em',
+                marginTop: '4px',
+                gap: '10px',
+              }}
               onClick={handlePayment}
               disabled={isLoading}
               whileHover={{ scale: 1.02 }}
@@ -268,9 +359,9 @@ export default function TipPage() {
                 </>
               ) : (
                 <>
-                  <Heart size={20} />
+                  <Heart size={18} fill="currentColor" style={{ opacity: 0.9 }} />
                   Send Tip {form.amount ? `₹${Number(form.amount).toLocaleString('en-IN')}` : ''}
-                  <Zap size={16} />
+                  <Zap size={16} fill="currentColor" style={{ opacity: 0.9 }} />
                 </>
               )}
             </motion.button>
@@ -334,11 +425,11 @@ export default function TipPage() {
                 boxShadow: '0 0 30px rgba(139,92,246,0.25), 0 4px 20px rgba(0,0,0,0.3)',
               }}>
                 <img
-                  src="/gpay-qr.png"
+                  src="/gpay-qr.png?v=2"
                   alt="Google Pay QR code — UPI ID: sammedp63@okicici"
-                  width={180}
-                  height={180}
-                  style={{ display: 'block', borderRadius: '8px' }}
+                  width={200}
+                  height={200}
+                  style={{ display: 'block', borderRadius: '8px', objectFit: 'contain' }}
                 />
               </div>
 
@@ -363,6 +454,8 @@ export default function TipPage() {
               </div>
             </motion.div>
           </div>
+          </div>
+          </BackgroundGradient>
         </motion.div>
 
         {/* Footer */}

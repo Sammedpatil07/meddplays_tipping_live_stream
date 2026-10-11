@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Lock, Gamepad2 } from 'lucide-react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import { API_URL } from '../config.js'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -15,7 +16,7 @@ export default function LoginPage() {
     if (!password.trim()) { toast.error('Enter your password'); return }
     setIsLoading(true)
     try {
-      const { data } = await axios.post('/api/auth/login', { password })
+      const { data } = await axios.post(`${API_URL}/api/auth/login`, { password })
       if (data.success) {
         localStorage.setItem('streamer', JSON.stringify({ id: data.streamerId, name: data.streamerName }))
         toast.success(`Welcome back, ${data.streamerName}! 🎮`)
