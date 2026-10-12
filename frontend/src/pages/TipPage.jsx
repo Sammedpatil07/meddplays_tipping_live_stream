@@ -134,7 +134,7 @@ export default function TipPage() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
-          style={{ width: '100%', maxWidth: '480px' }}
+          style={{ width: '100%', maxWidth: '400px' }}
         >
           <BackgroundGradient borderRadius="28px" containerStyle={{ width: '100%' }}>
           <div className="tip-form-card card">
@@ -189,7 +189,7 @@ export default function TipPage() {
           </div>
 
           {/* Form */}
-          <div className="flex flex-col gap-6" style={{ gap: '20px' }}>
+          <div className="flex flex-col gap-6" style={{ gap: '13px' }}>
 
             {/* Name */}
             <div className="form-group">
