@@ -15,8 +15,8 @@ export const createOrder = async (req, res) => {
   try {
     const { amount, senderName, message } = req.body;
 
-    if (!amount || amount < 1) {
-      return res.status(400).json({ success: false, message: 'Invalid amount' });
+    if (!amount || amount < 10) {
+      return res.status(400).json({ success: false, message: 'Minimum tip amount is ₹10' });
     }
 
     if (!senderName || senderName.trim().length === 0) {

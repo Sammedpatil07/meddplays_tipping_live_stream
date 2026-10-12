@@ -257,6 +257,19 @@ body {
   line-height: 1.6;
 }
 
+/* Override browser autofill white/yellow background */
+.form-input:-webkit-autofill,
+.form-input:-webkit-autofill:hover,
+.form-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px rgba(15, 23, 42, 0.95) inset,
+    0 0 0 3px rgba(59, 130, 246, 0.2),
+    inset 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+  -webkit-text-fill-color: #f1f5f9 !important;
+  caret-color: #f1f5f9;
+  border-color: #3b82f6 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 /* ============================================
    Buttons
    ============================================ */

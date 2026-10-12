@@ -48,13 +48,13 @@ export default function TipPage() {
   const handleStepAmount = (delta) => {
     const current = Number(form.amount) || 0
     const stepSize = current < 100 ? 10 : current < 1000 ? 50 : 500
-    const nextVal = Math.max(1, current + delta * stepSize)
+    const nextVal = Math.max(10, current + delta * stepSize)
     handleCustomAmount(String(nextVal))
   }
 
   const validateForm = () => {
     if (!form.name.trim()) { toast.error('Please enter your name 🎮'); return false }
-    if (!form.amount || isNaN(form.amount) || form.amount < 1) { toast.error('Please enter a valid amount'); return false }
+    if (!form.amount || isNaN(form.amount) || Number(form.amount) < 10) { toast.error('Minimum tip amount is ₹10 🎮'); return false }
     return true
   }
 
@@ -156,6 +156,7 @@ export default function TipPage() {
                   src="/avatar.png"
                   alt={STREAMER_NAME}
                   className="streamer-pill-avatar-img"
+                  style={{ borderRadius: '50%', objectFit: 'cover' }}
                 />
                 <div className="streamer-pill-yt-icon">
                   <svg
@@ -246,7 +247,7 @@ export default function TipPage() {
                         className="stepper-number-input"
                         value={form.amount}
                         onChange={(e) => handleCustomAmount(e.target.value)}
-                        min={1}
+                        min={10}
                         style={{
                           width: `${Math.max(2, String(form.amount || '40').length) * 26 + 10}px`,
                         }}
