@@ -71,9 +71,9 @@ body {
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
-  background-image: url('/gamer-bg.jpg');
+  background-image: url('/medd-bg.png');
   background-size: cover;
-  background-position: center top;
+  background-position: center center;
   background-attachment: fixed;
   background-repeat: no-repeat;
 }
@@ -109,9 +109,15 @@ body {
   content: '';
   position: fixed;
   inset: 0;
-  background: rgba(10, 10, 30, 0.72);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+  /* Warm pink-purple gradient overlay that harmonises with the LED room vibe */
+  background: linear-gradient(
+    160deg,
+    rgba(60, 5, 80, 0.68) 0%,
+    rgba(20, 5, 40, 0.74) 40%,
+    rgba(80, 15, 55, 0.65) 100%
+  );
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
   pointer-events: none;
   z-index: 0;
 }
