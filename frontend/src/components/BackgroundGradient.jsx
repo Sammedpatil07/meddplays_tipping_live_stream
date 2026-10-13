@@ -18,7 +18,7 @@ function buildGradient(colors) {
     `radial-gradient(circle farthest-side at 0 100%,${c1},transparent),` +
     `radial-gradient(circle farthest-side at 100% 0,${c2},transparent),` +
     `radial-gradient(circle farthest-side at 100% 100%,${c3},transparent),` +
-    `radial-gradient(circle farthest-side at 0 0,${c4},#141316)`
+    `radial-gradient(circle farthest-side at 0 0,${c4},transparent)`
   )
 }
 
